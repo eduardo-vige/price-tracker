@@ -49,3 +49,22 @@ for book in books:
     rating = rating_map[rating_class]
     category = "Travel"
     collected_at = datetime.now()
+
+    # insere livro (se não existir)
+    cursor.execute("""
+        INSERT OR IGNORE INTO books (title, category, rating)
+        VALUES (?, ?, ?)
+    """, (title, category, rating))
+
+    # pega id do livro
+    cursor.execute("SELECT book_id FROM books WHERE title = ?", (title,))
+    book_id = cursor.fetchone()[0]
+
+    # insere preço
+    cursor.execute("""
+        INSERT INTO prices (book_id, price, collected_at)
+        VALUES (?, ?, ?)
+    """, (book_id, price, collected_at))
+
+conn.commit()
+conn.close()
