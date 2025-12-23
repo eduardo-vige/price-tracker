@@ -54,7 +54,12 @@ def scrape_books():
 
     for book in books:
         title = book.h3.a["title"]
-        price = float(book.find("p", class_="price_color").text.replace("£", ""))
+        text_price = book.find("p", class_="price_color").text
+
+        price = float(
+            text_price.translate(str.maketrans("", "", "£Â"))
+        )
+
         rating_class = book.find("p", class_="star-rating")["class"][1]
         rating = rating_map[rating_class]
         category = "Travel"
