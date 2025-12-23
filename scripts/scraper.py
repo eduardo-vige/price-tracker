@@ -1,33 +1,38 @@
 import sqlite3
 import requests
+import os
 from bs4 import BeautifulSoup
 from datetime import datetime
 
 BASE_URL = "https://books.toscrape.com/catalogue/category/books/travel_2/index.html"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "database", "prices.db")
+
 
 # conexão com o banco
-conn = sqlite3.connect("database/prices.db")
-cursor = conn.cursor()
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
 
-# cria tabelas se não existirem
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS books (
-    book_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT UNIQUE,
-    category TEXT,
-    rating INTEGER
-)
-""")
+    # cria tabelas se não existirem
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS books (
+        book_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT UNIQUE,
+        category TEXT,
+        rating INTEGER
+    )
+    """)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS prices (
-    price_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    book_id INTEGER,
-    price REAL,
-    collected_at DATETIME,
-    FOREIGN KEY (book_id) REFERENCES books(book_id)
-)
-""")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS prices (
+        price_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        book_id INTEGER,
+        price REAL,
+        collected_at DATETIME,
+        FOREIGN KEY (book_id) REFERENCES books(book_id)
+    )
+    """)
 
 response = requests.get(BASE_URL)
 soup = BeautifulSoup(response.text, "html.parser")
